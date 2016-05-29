@@ -34,7 +34,7 @@
 /******/ 	__webpack_require__.c = installedModules;
 
 /******/ 	// __webpack_public_path__
-/******/ 	__webpack_require__.p = "";
+/******/ 	__webpack_require__.p = "/assets/";
 
 /******/ 	// Load entry module and return exports
 /******/ 	return __webpack_require__(0);
@@ -47,42 +47,47 @@
 	"use strict";
 
 	var loadSample = function loadSample(ac, sampleFile) {
-	  var rawFile = new XMLHttpRequest();
-	  rawFile.open("get", sampleFile);
-	  rawFile.responseType = "arraybuffer";
-	  rawFile.addEventListener("load", function () {
+	  var file = new XMLHttpRequest();
+	  file.open("get", sampleFile);
+	  file.responseType = "arraybuffer";
+	  file.addEventListener("load", function () {
+	    console.log(this.response);
 	    ac.decodeAudioData(this.response, function (decodedBuffer) {
 	      window.clapSound = decodedBuffer;
 	    });
 	  });
-	  rawFile.send();
+	  file.send();
 	};
 
-	var playBuffer = function playBuffer(ac, buffer) {
+	var playBuffer = function playBuffer(ac, buffer, startTime) {
+	  var offset = 1;
 	  var source = ac.createBufferSource();
 	  source.buffer = buffer;
 	  source.connect(ac.destination);
-	  source.start(0);
+	  source.start(offset + startTime);
 	};
 
-	var reader = function reader(ac, beats) {
-	  console.log(beats);
-	  if (beats.pop() == "X") {
-	    playBuffer(ac, window.clapSound);
-	  }
-	  if (!beats.length == 0) {
-	    setTimeout(function () {
-	      reader(ac, beats);
-	    }, 250);
+	var reader = {
+	  push: function push(ac, beats) {
+	    beats.map(function (beat, index) {
+	      if (beat == "X") {
+	        playBuffer(ac, window.clapSound, index * .25);
+	      }
+	    });
 	  }
 	};
 
 	window.addEventListener("load", function () {
-	  var melody = "XXX_XX_X_XX_";
-	  var splitMelody = melody.split("");
 	  var audioContext = new AudioContext();
 	  loadSample(audioContext, "clap1.wav");
-	  reader(audioContext, splitMelody);
+	  setTimeout(function () {
+	    var melody = "XXX_XX_X_XX_";
+	    var melody2 = "XX_XX_X_XX_X";
+	    var splitMelody = melody.split("");
+	    var splitMelody2 = melody2.split("");
+	    reader.push(audioContext, splitMelody);
+	    reader.push(audioContext, splitMelody2);
+	  }, 1000);
 	});
 
 /***/ }
