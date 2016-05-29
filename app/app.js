@@ -12,17 +12,19 @@ class MusicRound {
     if(this._clapSample != undefined) {
       return this._clapSample
     } else {
-      this._clapSample = this.loadClapSample("clap1.wav")
+      this._clapSample = this.loadClapSample("clap2.wav")
       return this._clapSample
     }
   }
 
   play(pattern) {
-    this.loadClapSample("clap1.wav")
+    this.loadClapSample("clap2.wav")
     let fixedPattern = pattern.repeat(pattern.length)
     let splitPattern = fixedPattern.split("")
     let variablePattern = this.fullShift(pattern)
     setTimeout(function() {
+      console.log(splitPattern)
+      console.log(variablePattern)
       this.queue(splitPattern)
       this.queue(variablePattern)
     }.bind(this), 1000)
@@ -32,7 +34,7 @@ class MusicRound {
     pattern.map((beat, index) => {
       if(beat == "X")
       {
-        this.playClap(index * .25)
+        this.playClap(index * .2)
       }
     })
   }
@@ -54,10 +56,11 @@ class MusicRound {
   playClap(startTime) {
     //we could change offset later
     let offset = 1
-    var source = this.audioContext.createBufferSource()
+    let randomHumanTime = Math.random() * .001
+    let source = this.audioContext.createBufferSource()
     source.buffer = this.clapSample
     source.connect(this.audioContext.destination)
-    source.start(offset + startTime)
+    source.start(offset + startTime + randomHumanTime)
   }
 
   shift(pattern, count) {
